@@ -72,12 +72,17 @@ static int doSegmentAfter(eio_req *req) {
 	argv[0] = String::New(task->rst);
 	TryCatch try_catch;
 	task->cb->Call(Context::GetCurrent()->Global(), 1, argv);
-    if (try_catch.HasCaught()) {
-    	FatalException(try_catch);
+	if (try_catch.HasCaught()) {
+		task->cb.Dispose();
+  		free(task->rst);
+  		free(task);
+		FatalException(try_catch);
   	}
-  	task->cb.Dispose();
-  	free(task->rst);
-  	free(task);
+	else {
+  		task->cb.Dispose();
+  		free(task->rst);
+  		free(task);
+	}
 	return 0;
 }
 
