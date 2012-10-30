@@ -7,7 +7,6 @@ process.argv.forEach(function (val, index, array) {
 });
 
 csegment.doWork(content, function(result) {console.log(result);});
-/*
 csegment.doWork('结婚的和尚未结婚的', function(result) {console.log(result);});
 csegment.doWork('中外科学名著', function(result) {console.log(result);});
 csegment.doWork('鞭炮声响彻夜空', function(result) {console.log(result);});
@@ -23,4 +22,3 @@ csegment.doWork('这扇门的把手', function(result) {console.log(result);});
 csegment.doWork('学生会宣传部', function(result) {console.log(result);});
 csegment.doWork('邓颖超生前使用过的物品', function(result) {console.log(result);});
 csegment.doWork('费孝通向人大常委会提交书面报告', function(result) {console.log(result);});
-*/

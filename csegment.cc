@@ -6,7 +6,9 @@
 
 using namespace v8;
 using namespace node;
-	
+
+static int ICTCLAS_INIT = 0;
+
 typedef struct segment_task {
 	Persistent<Function> cb;
 	char *rst;
@@ -25,6 +27,14 @@ Handle<Value> doSegmentAsync(const Arguments& args) {
 		return ThrowException(Exception::Error(String::New(usage)));
 	}
 
+	if(ICTCLAS_INIT == 0) {
+		if(!ICTCLAS_Init()) {
+			return ThrowException(Exception::Error(String::New("ICTCLAS INIT FAILURE!")));
+		}
+		ICTCLAS_SetPOSmap(2);
+		ICTCLAS_INIT = 1;
+	}
+
 	String::Utf8Value content(args[0]);
 	Local<Function> cb = Local<Function>::Cast(args[1]);
 
@@ -39,11 +49,6 @@ Handle<Value> doSegmentAsync(const Arguments& args) {
 }
 
 static void doSegment(eio_req *req) {
-	if(!ICTCLAS_Init()) {
-		return;
-	}
-	ICTCLAS_SetPOSmap(2);
-
 	segment_task *task = (segment_task *)req->data;
 	unsigned int nLen = strlen(task->content);
 
@@ -54,7 +59,7 @@ static void doSegment(eio_req *req) {
 	nRstLen = ICTCLAS_ParagraphProcess(task->content, nLen, sRst, CODE_TYPE_UNKNOWN, 1);
 	task->rst = sRst;
 
-	ICTCLAS_Exit();
+	//ICTCLAS_Exit();
 }
 
 static int doSegmentAfter(eio_req *req) {
@@ -79,6 +84,8 @@ static int doSegmentAfter(eio_req *req) {
 extern "C" {
 
 void init(Handle<Object> target) {
+
+
 	target->Set(String::NewSymbol("doWork"), 
 		  	  FunctionTemplate::New(doSegmentAsync)->GetFunction());
 }
