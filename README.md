@@ -4,9 +4,10 @@ ICTCLAS Nodejs module
 中文分词ICTCLAS包的nodejs封装
 
 Installation
------------
+------------
 
-1.下载ICTCLAS包(http://www.ictclas.org)，解压到代码目录，比如叫ICTCLAS
+
+1.下载ICTCLAS包[http://www.ictclas.org](http://www.ictclas.org)，解压到代码目录，比如叫ICTCLAS
 
 2.修改binding.gyp文件的libraries，指向ICTCLAS/API/libICTCLAS50.so所在的绝对路径
 
