@@ -16,8 +16,8 @@ typedef struct segment_task {
 } segment_task;
 
 Handle<Value> doSegmentAsync(const Arguments& args);
-static void doSegment(eio_req *req);
-static int doSegmentAfter(eio_req *req);
+static void doSegment(uv_work_t *req);
+static void doSegmentAfter(uv_work_t *req, int status);
 
 Handle<Value> doSegmentAsync(const Arguments& args) {
 	HandleScope scope;
@@ -42,13 +42,15 @@ Handle<Value> doSegmentAsync(const Arguments& args) {
 	memset(task, 0, sizeof(segment_task) + content.length() + 1);
 	task->cb = Persistent<Function>::New(cb);
 	strncpy(task->content, *content, content.length());
-	
-	eio_custom(doSegment, EIO_PRI_DEFAULT, doSegmentAfter, task);
-	ev_ref(EV_DEFAULT_UC);
+
+	uv_work_t *req = new uv_work_t;
+   req->data = task; 
+   
+   uv_queue_work(uv_default_loop(), req, doSegment, doSegmentAfter);
 	return Undefined();
 }
 
-static void doSegment(eio_req *req) {
+static void doSegment(uv_work_t *req) {
 	segment_task *task = (segment_task *)req->data;
 	unsigned int nLen = strlen(task->content);
 
@@ -62,10 +64,9 @@ static void doSegment(eio_req *req) {
 	//ICTCLAS_Exit();
 }
 
-static int doSegmentAfter(eio_req *req) {
+static void doSegmentAfter(uv_work_t *req, int status) {
 	HandleScope scope;
 
-	ev_unref(EV_DEFAULT_UC);
 	segment_task *task = (segment_task *)req->data;
 
 	Local<Value> argv[1];
@@ -83,7 +84,6 @@ static int doSegmentAfter(eio_req *req) {
   		free(task->rst);
   		free(task);
 	}
-	return 0;
 }
 
 extern "C" {
